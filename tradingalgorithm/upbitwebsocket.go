@@ -37,16 +37,22 @@ func Start() {
 func initializeWebsocket() {
 	defer func() {
 		if err := recover(); err != nil {
-			logger.VBS.Error(err)
+			logger.VBS.Error.Println(err)
 		}
 	}()
 
-	c, _, err := websocket.DefaultDialer.Dial("wss://api.upbit.com/websocket/v1", nil)
+	logger.VBS.Info.Println("WS Connecting")
+	c, res, err := websocket.DefaultDialer.Dial("wss://api.upbit.com/websocket/v1", nil)
 	if err != nil {
-		logger.VBS.Error("WS Dial:", err)
+		logger.VBS.Error.Println("WS Dial:", err)
 		return
 	}
-	defer c.Close()
+	defer func() {
+		c.Close()
+		logger.VBS.Info.Println("WS Disconnected")
+	}()
+	logger.VBS.Info.Println("WS Connected")
+	logger.VBS.Debug.Printf("%+v\n", res)
 
 	disconnect := make(chan struct{})
 
@@ -56,9 +62,10 @@ func initializeWebsocket() {
 			ticker := tickerResponse{}
 			err := c.ReadJSON(&ticker)
 			if err != nil {
-				logger.VBS.Error("WS Read:", err)
+				logger.VBS.Error.Println("WS Read:", err)
 				return
 			}
+			logger.VBS.Debug.Printf("%+v\n", ticker)
 			processVB(&ticker)
 		}
 	}()
@@ -77,7 +84,7 @@ func initializeWebsocket() {
 				formatField{Format: "SIMPLE"},
 			})
 			if err != nil {
-				logger.VBS.Info("WS Write:", err)
+				logger.VBS.Info.Println("WS Write:", err)
 				return
 			}
 		}

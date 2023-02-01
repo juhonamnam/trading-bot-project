@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/juhonamnam/trading-bot-project/logger"
 )
 
 type candle struct {
@@ -18,7 +20,7 @@ type candle struct {
 
 var httpClient = http.Client{Timeout: time.Duration(10) * time.Second}
 
-func GetCandles(market string) (*[]candle, error) {
+func getCandles(market string) (*[]candle, error) {
 	url := fmt.Sprintf("https://api.upbit.com/v1/candles/days?market=%s&count=21", market)
 	req, err := http.NewRequest("GET", url, nil)
 
@@ -47,6 +49,8 @@ func GetCandles(market string) (*[]candle, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	logger.VBS.Debug.Printf("getCandles: %+v\n", candles)
 
 	return &candles, nil
 }
