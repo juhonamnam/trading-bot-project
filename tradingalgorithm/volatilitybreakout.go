@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/juhonamnam/trading-bot-project/env"
 	"github.com/juhonamnam/trading-bot-project/logger"
 )
 
@@ -37,9 +38,9 @@ func processVB(ticker *tickerResponse) {
 
 	if ticker.TradingPrice >= targetPrices[ticker.Code] {
 		// Buy
-		logger.VBS.Info.Println("Buy", ticker.Code, ticker.TradingPrice)
+		logger.VBS.Info.Printf("Buy %s, Current Price: %.0f\n", ticker.Code, ticker.TradingPrice)
 		buyMessage := fmt.Sprintf("<u><i>%s 매수!!</i></u>\n현재가: %.0f", ticker.Code, ticker.TradingPrice)
-		sendMessage(buyMessage)
+		sendMessage(buyMessage, env.VBSChatId)
 		buyPrices[ticker.Code] = ticker.TradingPrice
 	}
 }
@@ -70,10 +71,10 @@ func setTargetPrice(market string) {
 	if buyPrices[market] != 0 {
 		// Sell
 		interest := 100 * ((*res)[0].TradePrice - buyPrices[market]) / buyPrices[market]
-		logger.VBS.Info.Println("Sell", market, "Intereset:", interest)
+		logger.VBS.Info.Printf("Sell %s, Interest: %.2f%%\n", market, interest)
 		sellMessage := fmt.Sprintf("<u><i>%s 매도!!</i></u>\n매수가: %.0f\n매도가: %.0f\n수익률: <b>%.2f%%</b>", market, buyPrices[market], (*res)[0].TradePrice, interest)
-		sendMessage(sellMessage)
+		sendMessage(sellMessage, env.VBSChatId)
 		buyPrices[market] = 0
 	}
-	logger.VBS.Info.Println(pfx, "Target Price:", targetPrices[market], "k-value:", k)
+	logger.VBS.Info.Printf(pfx+"Target Price %.0f, k-value: %f", targetPrices[market], k)
 }

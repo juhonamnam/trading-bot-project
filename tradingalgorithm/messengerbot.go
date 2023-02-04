@@ -11,16 +11,14 @@ type message struct {
 }
 
 var _messengerBot messengerBot = nil
-var _chatId string
 
-func SetMessengerBot(bot messengerBot, chatId string) {
+func SetMessengerBot(bot messengerBot) {
 	_messengerBot = bot
-	_chatId = chatId
 }
 
-func sendMessage(text string) {
+func sendMessage(text string, chatId string) {
 	_messengerBot.Request("sendMessage", message{
-		ChatId:    _chatId,
+		ChatId:    chatId,
 		Text:      text,
 		ParseMode: "HTML",
 	})

@@ -5,21 +5,18 @@ FROM golang:1.19-buster AS build
 
 WORKDIR /app
 
-COPY go.mod ./
-COPY go.sum ./
+COPY . .
+
 RUN go mod download
 
-COPY *.go ./
-
-RUN go build -o /docker-gs-ping
+RUN go build -o /trading-bot-project
 
 ## Deploy
 FROM gcr.io/distroless/base-debian10
 
-WORKDIR /
+WORKDIR /trading-bot-project
 
-COPY --from=build /docker-gs-ping /docker-gs-ping
+COPY --from=build /trading-bot-project ./trading-bot-project
+COPY ./.env ./.env
 
-USER nonroot:nonroot
-
-ENTRYPOINT ["/docker-gs-ping"]
+ENTRYPOINT ["./trading-bot-project", "-production"]
