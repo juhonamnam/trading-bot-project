@@ -28,10 +28,22 @@ type tickerResponse struct {
 	Timestamp    int64   `json:"tms"`
 }
 
+var running = true
+var wsDisconnect = make(chan struct{})
+
 func Start() {
 	for {
-		initializeWebsocket()
+		if running {
+			initializeWebsocket()
+		} else {
+			return
+		}
 	}
+}
+
+func Stop() {
+	running = false
+	close(wsDisconnect)
 }
 
 func initializeWebsocket() {
@@ -54,10 +66,11 @@ func initializeWebsocket() {
 	logger.VBS.Info.Println("WS Connected")
 	logger.VBS.Debug.Printf("%+v\n", res)
 
-	disconnect := make(chan struct{})
+	readerDisconnect := make(chan struct{})
 
 	go func() {
-		defer close(disconnect)
+		// Reader
+		defer close(readerDisconnect)
 		for {
 			ticker := tickerResponse{}
 			err := c.ReadJSON(&ticker)
@@ -74,10 +87,14 @@ func initializeWebsocket() {
 
 	for {
 		select {
-		case <-disconnect:
+		case <-wsDisconnect:
+			return
+
+		case <-readerDisconnect:
 			return
 
 		case <-ticker.C:
+			// Writter
 			err := c.WriteJSON([]interface{}{
 				ticketField{Ticket: "juhonamnam-trading-bot-project"},
 				typeField{Type: "ticker", Codes: []string{"KRW-BTC", "KRW-ETH", "KRW-EOS", "KRW-BCH"}, IsOnlySnapshot: true},
