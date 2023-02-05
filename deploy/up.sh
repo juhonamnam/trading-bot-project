@@ -3,7 +3,7 @@
 mkdir -p logs
 
 # Build Image
-echo "docker build --tag $APP_NAME:$APP_TAG ."
+echo "exec: docker build --tag $APP_NAME:$APP_TAG ."
 docker build --tag $APP_NAME:$APP_TAG .
 
 # Run Container
