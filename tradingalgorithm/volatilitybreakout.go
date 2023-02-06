@@ -53,11 +53,13 @@ func setTargetPrice(market string) {
 		logger.VBS.Error.Println(pfx, err)
 		time.Sleep(time.Duration(10) * time.Second)
 		setTargetPrice(market)
+		return
 	}
 	if (*res)[0].Timestamp < resetTimestamp {
 		logger.VBS.Error.Println(pfx, "Recent Data Not Out Yet")
 		time.Sleep(time.Duration(10) * time.Second)
 		setTargetPrice(market)
+		return
 	}
 
 	var volatility float64 = 0
