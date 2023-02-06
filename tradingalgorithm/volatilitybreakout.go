@@ -66,7 +66,7 @@ func setTargetPrice(market string) {
 	}
 	k := 1 - volatility/20
 
-	targetPrices[market] = (*res)[0].OpeningPrice + k*((*res)[1].HighPrice-(*res)[1].HighPrice)
+	targetPrices[market] = (*res)[0].OpeningPrice + k*((*res)[1].HighPrice-(*res)[1].LowPrice)
 
 	if buyPrices[market] != 0 {
 		// Sell
