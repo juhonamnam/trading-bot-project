@@ -21,7 +21,7 @@ func main() {
 	}()
 
 	bot := telego.Initialize(env.BotAPIKey)
-	bot.SetLogger(logger.GetTelegoLogger())
+	bot.SetLogger(logger.Telego)
 	tradingalgorithm.SetMessengerBot(bot)
 	tradingalgorithm.Start()
 }

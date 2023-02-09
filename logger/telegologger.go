@@ -28,7 +28,9 @@ func (logger *telegoLogger) Error(v ...interface{}) {
 	logger.errorLogger.Println(v...)
 }
 
-func GetTelegoLogger() telego.Logger {
+var Telego telego.Logger
+
+func init() {
 	flags := log.LstdFlags
 	if env.IsProduction {
 		telegoLogFile, err := os.OpenFile("./logs/telego.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
@@ -39,14 +41,14 @@ func GetTelegoLogger() telego.Logger {
 		if err != nil {
 			panic(err.Error())
 		}
-		return &telegoLogger{
+		Telego = &telegoLogger{
 			debugLogger: &dummyLogger,
 			infoLogger:  log.New(telegoLogFile, "Telego Info: ", flags),
 			warnLogger:  log.New(telegoLogFile, "Telego WARN: ", flags),
 			errorLogger: log.New(telegoErrorLogFile, "Telego ERROR: ", flags),
 		}
 	}
-	return &telegoLogger{
+	Telego = &telegoLogger{
 		debugLogger: log.New(os.Stdout, "Telego Debug: ", flags),
 		infoLogger:  log.New(os.Stdout, "Telego Info: ", flags),
 		warnLogger:  log.New(os.Stdout, "Telego WARN: ", flags),

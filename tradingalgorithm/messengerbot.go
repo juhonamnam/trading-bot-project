@@ -1,5 +1,11 @@
 package tradingalgorithm
 
+import (
+	"encoding/json"
+
+	"github.com/juhonamnam/trading-bot-project/logger"
+)
+
 type messengerBot interface {
 	Request(endpoint string, data any) (*[]byte, error)
 }
@@ -10,6 +16,11 @@ type message struct {
 	ParseMode string `json:"parse_mode"`
 }
 
+type baseResponse struct {
+	Ok          bool   `json:"ok"`
+	Description string `json:"description"`
+}
+
 var _messengerBot messengerBot = nil
 
 func SetMessengerBot(bot messengerBot) {
@@ -17,9 +28,22 @@ func SetMessengerBot(bot messengerBot) {
 }
 
 func sendMessage(text string, chatId string) {
-	_messengerBot.Request("sendMessage", message{
+	res, err := _messengerBot.Request("sendMessage", message{
 		ChatId:    chatId,
 		Text:      text,
 		ParseMode: "HTML",
 	})
+	if err != nil {
+		logger.Telego.Error(err.Error())
+	}
+
+	var result baseResponse
+	err = json.Unmarshal(*res, &result)
+	if err != nil {
+		logger.Telego.Error(err.Error())
+	}
+
+	if !result.Ok {
+		logger.Telego.Error(result.Description)
+	}
 }
